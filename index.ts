@@ -1,12 +1,17 @@
-import { createIPX, createIPXMiddleware } from "ipx";
 import { listen } from "listhen";
-import { createApp, fromNodeMiddleware, toNodeListener } from "h3";
+import { createApp, toNodeListener } from "h3";
+import {
+  createIPX,
+  ipxFSStorage,
+  ipxHttpStorage,
+  createIPXH3Handler,
+} from "ipx";
 
 const ipx = createIPX({
-  dir: "./public",
+  storage: ipxFSStorage({ dir: "./public" }),
+  httpStorage: ipxHttpStorage({ domains: ["images.unsplash.com"] }),
 });
-const ipxMiddleware = createIPXMiddleware(ipx);
 
-const app = createApp().use("/", fromNodeMiddleware(ipxMiddleware));
+const app = createApp().use("/", createIPXH3Handler(ipx));
 
 listen(toNodeListener(app));
